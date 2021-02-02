@@ -1,0 +1,38 @@
+{{>header}}
+{{>navbar}}
+
+
+<div class="row g-3 my-5 mx-5">
+    <div class="col">
+        <form action="/register" method="POST">
+        <input type="text" class="form-control" placeholder="First name" name="firstname">
+        <br>
+        <input type="text" class="form-control" placeholder="Last name" name="lastname">
+        <br>
+        <input type="email" class="form-control" placeholder="Email id" name="email">
+        <br>
+        <input type="text" class="form-control" placeholder="Username" name="username">
+        <br>
+        <input type="phone" class="form-control" placeholder="Phone no" name="phone" >
+        <br>
+        <input type="password" class="form-control" placeholder="Password" value="" name="password">
+        <br>
+        <input type="password" class="form-control" placeholder="Confirm Password" value="" name="confirmpassword">
+        <br>
+        <input type="number" class="form-control" placeholder="Enter Your age" value="" name="age">
+        <br>
+        <label class="radio inline">
+        <input type="radio" name="gender" value="male" checked>
+        <span>Male</span>
+        </label>
+        <label class="radio inline">
+        <input type="radio" name="gender" value="female">
+        <span>Female</span>
+        </label>
+        <br>
+        <br>
+         <input type="submit" class="btnRegister px-5" value="Register">
+        <br>
+        </form>
+    </div>
+</div>
