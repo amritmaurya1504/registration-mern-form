@@ -3,11 +3,14 @@
 
 
 <div class="row g-3 my-5 mx-5">
+    <form action="/login" method="POST">
     <div class="col">
-        <input type="text" class="form-control" placeholder="Username" aria-label="First name">
+        <input type="text" class="form-control" placeholder="Username" name="username">
         <br>
-        <input type="text" class="form-control" placeholder="Password" aria-label="First name">
+        <input type="password" class="form-control" placeholder="Password" name="password">
         <br>
-        <button type="button" class="btn btn-dark px-5">Login</button>
+        <br>
+         <input type="submit" class="btn btn-dark px-5" value="Login">
     </div>
+    </form>
 </div>

@@ -17,6 +17,7 @@ const partials_Path = path.join(__dirname , "../templates/partials")
 
 app.use(express.urlencoded({extended : false}));
 
+
 app.use(express.static(static_Path))
 app.set("view engine" , "hbs");
 app.set("views" ,templates_Path );
@@ -47,9 +48,13 @@ app.post("/register" , async(req,res)=>{
                 gender : req.body.gender
             })
             const insertData = await registerEmployee.save();
-            res.status(200).render("index");
+            res.status(200).render("register" , {
+                succes : "Succesfully Registerd",
+            });
         }else{
-            res.send("Password are not matching");
+            res.render("register" ,{
+                danger : "Password is Not Matching",
+            });
         }
 
     } catch (error) {
@@ -59,11 +64,49 @@ app.post("/register" , async(req,res)=>{
 app.get("/register" , async(req,res)=>{
     res.render("register");
 })
-// app.get("/login" , async(req,res)=>{
-//     res.render("login");
-// })
+app.post("/login" , async (req,res) =>{
+    try{
+        const username = req.body.username;
+        const password = req.body.password;
+    
+    const userLogin = await Regform.findOne({username});
+    
+    if(userLogin.password == password){
+        res.status(200).render("login" , {
+            name : userLogin.firstname,
+        });
+    }else{
+        res.send("Invalid User-Details");
+    }
+}catch(error){
+    res.status(400).send("invalid User")
+}
 
+
+})
+
+
+
+app.get("/login" , async(req,res)=>{
+    res.render("login");
+})
+
+
+
+// BCRYPT PASSWORD
+
+const bcrypt = require("bcryptjs");
+
+const securePassword =  async (password)=>{
+    const passwordHash = await bcrypt.hash(password , 10);
+    console.log(passwordHash);
+    const passwordCompare = await bcrypt.compare(password , passwordHash);
+    console.log(passwordCompare);
+}
+
+securePassword("amrit@123");
 
 app.listen(port, ()=>{
     console.log(`Server is listening on port ${port}`)
 })
+
