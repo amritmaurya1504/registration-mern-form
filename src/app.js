@@ -3,7 +3,10 @@ const express = require("express");
 const path = require("path");
 const hbs = require("hbs");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const cookieParser = require("cookie-parser");
 const app = express();
+const auth = require("./middleware/auth");
 
 require("./db/conn");
 const Regform = require("./models/users");
@@ -18,7 +21,7 @@ const templates_Path = path.join(__dirname , "../templates/views")
 const partials_Path = path.join(__dirname , "../templates/partials")
 
 app.use(express.urlencoded({extended : false}));
-
+app.use(cookieParser());
 
 app.use(express.static(static_Path))
 app.set("view engine" , "hbs");
@@ -31,6 +34,33 @@ hbs.registerPartials(partials_Path);
 app.get("/" , async(req,res)=>{
     res.render("index");
 })
+app.get("/secret" , auth ,(req,res) => {
+    console.log(`this is cookies awesome : ${req.cookies.jwt}`);
+    res.render("secret");
+})
+app.get("/logout" , auth , async(req,res) =>{
+    try {
+        // console.log(req.user);
+
+        // by this code we delete token from database (most recent token)
+        // req.user.tokens = req.user.tokens.filter((currentElement) =>{
+        //     return currentElement.token != req.token
+        // })
+
+        // logout from all devices
+        req.user.tokens = [];
+
+        // simple logout
+        res.clearCookie("jwt");
+        console.log("Logout........");
+
+        await req.user.save();
+        res.render("login");
+    } catch (error) {
+        res.status(500).send(error);
+    }
+})
+
 // registering data
 app.post("/register" , async(req,res)=>{
     try {
@@ -54,10 +84,17 @@ app.post("/register" , async(req,res)=>{
             const token = await registerEmployee.generateAuthToken();
             console.log("the token part " + token);
 
-            const insertData = await registerEmployee.save();
-            res.status(200).render("register" , {
-                succes : "Succesfully Registerd",
-            });
+       //res.cookies() function is used to set the cokies name to value.
+       //the value parameter may be a string or object converted to json
+       
+       res.cookie("jwt" , token , {
+           expires : new Date(Date.now() + 30000),
+           httpOnly : true
+       })
+       const insertData = await registerEmployee.save();
+       res.status(200).render("register" , {
+         succes : "Succesfully Registerd",
+        });
         }else{
             res.render("register" ,{
                 danger : "Password is Not Matching",
@@ -86,10 +123,15 @@ app.post("/login" , async (req,res) =>{
     const token = await userLogin.generateAuthToken();
     console.log("the token part " + token);
 
+    // SEND COOKIES 
+    res.cookie("jwt" , token , {
+        expires : new Date(Date.now() + 100000),
+        httpOnly : true,
+        // secure :true use when https use
+    })
+    
     if(hashPass){
-        res.status(200).render("login" , {
-            name : userLogin.firstname,
-        });
+        res.status(200).render("secret");
     }else{
         res.send("Invalid User-Details");
     }
@@ -112,9 +154,6 @@ app.get("/login" , async(req,res)=>{
 app.listen(port, ()=>{
     console.log(`Server is listening on port ${port}`)
 })
-
-
-
 
 
 
@@ -172,3 +211,4 @@ app.listen(port, ()=>{
 // }
 
 // createToken();
+
