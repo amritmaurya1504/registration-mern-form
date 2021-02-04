@@ -54,6 +54,11 @@ html{
     min-height: 90vh;
     max-width: 100%;
 }
+.login{
+    text-transform: capitalize;
+    color: red;
+    font-weight: 600;
+}
 .cont{
     display: flex;
     justify-content: center;

@@ -1,3 +1,4 @@
+require("dotenv").config()  //always at the top and then create route directory 
 const express = require("express");
 const path = require("path");
 const hbs = require("hbs");
@@ -24,6 +25,7 @@ app.set("view engine" , "hbs");
 app.set("views" ,templates_Path );
 hbs.registerPartials(partials_Path);
 
+// console.log(process.env.SECRET);
 
 // get homepage
 app.get("/" , async(req,res)=>{
@@ -49,7 +51,8 @@ app.post("/register" , async(req,res)=>{
                 age : req.body.age,
                 gender : req.body.gender
             })
-            
+            const token = await registerEmployee.generateAuthToken();
+            console.log("the token part " + token);
 
             const insertData = await registerEmployee.save();
             res.status(200).render("register" , {
@@ -75,9 +78,14 @@ app.post("/login" , async (req,res) =>{
         const password = req.body.password;
         const userLogin = await Regform.findOne({username});
     
-        // password comparsion  by bcrypt
+    // password comparsion  by bcrypt
     const hashPass = await bcrypt.compare(password , userLogin.password);
     console.log(hashPass);
+
+    // JWT CREATE TOKEN USING LOGIN
+    const token = await userLogin.generateAuthToken();
+    console.log("the token part " + token);
+
     if(hashPass){
         res.status(200).render("login" , {
             name : userLogin.firstname,
@@ -100,6 +108,37 @@ app.get("/login" , async(req,res)=>{
 
 
 
+
+app.listen(port, ()=>{
+    console.log(`Server is listening on port ${port}`)
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // BCRYPT PASSWORD - General Usage
 
 
@@ -113,7 +152,23 @@ app.get("/login" , async(req,res)=>{
 // securePassword("amrit@123");
 
 
-app.listen(port, ()=>{
-    console.log(`Server is listening on port ${port}`)
-})
 
+
+
+
+// // JWT USER AUTHENTICALTION
+
+// const jwt = require("jsonwebtoken");
+
+// const createToken = async()=>{
+//     // creating token
+//     const token = await jwt.sign({_id :" 601bb19c9e613941c810602d"} , "mynameisamritrajmyyoutubechannelisinfoskillx" , {
+//         expiresIn : "2 seconds"
+//     });
+//     console.log(token);
+// // verifing user
+//     const userVr = await jwt.verify(token , "mynameisamritrajmyyoutubechannelisinfoskillx");
+//     console.log(userVr);
+// }
+
+// createToken();
