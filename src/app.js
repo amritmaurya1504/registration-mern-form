@@ -1,6 +1,7 @@
 const express = require("express");
 const path = require("path");
 const hbs = require("hbs");
+const bcrypt = require("bcryptjs");
 const app = express();
 
 require("./db/conn");
@@ -24,10 +25,11 @@ app.set("views" ,templates_Path );
 hbs.registerPartials(partials_Path);
 
 
-
+// get homepage
 app.get("/" , async(req,res)=>{
     res.render("index");
 })
+// registering data
 app.post("/register" , async(req,res)=>{
     try {
         
@@ -47,6 +49,8 @@ app.post("/register" , async(req,res)=>{
                 age : req.body.age,
                 gender : req.body.gender
             })
+            
+
             const insertData = await registerEmployee.save();
             res.status(200).render("register" , {
                 succes : "Succesfully Registerd",
@@ -64,14 +68,17 @@ app.post("/register" , async(req,res)=>{
 app.get("/register" , async(req,res)=>{
     res.render("register");
 })
+// login match details
 app.post("/login" , async (req,res) =>{
     try{
         const username = req.body.username;
         const password = req.body.password;
+        const userLogin = await Regform.findOne({username});
     
-    const userLogin = await Regform.findOne({username});
-    
-    if(userLogin.password == password){
+        // password comparsion  by bcrypt
+    const hashPass = await bcrypt.compare(password , userLogin.password);
+    console.log(hashPass);
+    if(hashPass){
         res.status(200).render("login" , {
             name : userLogin.firstname,
         });
@@ -93,18 +100,18 @@ app.get("/login" , async(req,res)=>{
 
 
 
-// BCRYPT PASSWORD
+// BCRYPT PASSWORD - General Usage
 
-const bcrypt = require("bcryptjs");
 
-const securePassword =  async (password)=>{
-    const passwordHash = await bcrypt.hash(password , 10);
-    console.log(passwordHash);
-    const passwordCompare = await bcrypt.compare(password , passwordHash);
-    console.log(passwordCompare);
-}
 
-securePassword("amrit@123");
+// const securePassword =  async (password)=>{
+//     const passwordHash = await bcrypt.hash(password , 10);
+//     console.log(passwordHash);
+//     const passwordCompare = await bcrypt.compare(password , passwordHash);
+//     console.log(passwordCompare);
+// }
+// securePassword("amrit@123");
+
 
 app.listen(port, ()=>{
     console.log(`Server is listening on port ${port}`)
